@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { Slate, DELIVERY_PHASES, buildExecutionPlan } from '../src/index.js';
+import {
+  Slate,
+  DELIVERY_PHASES,
+  buildExecutionPlan,
+  completeDeliverable,
+  executionProgress
+} from '../src/index.js';
 
 test('adds and retrieves surfaces', () => {
   const slate = new Slate();
@@ -124,4 +130,21 @@ test('contains all requested delivery phases in order', () => {
   const executionPlan = buildExecutionPlan();
   assert.equal(executionPlan[0].status, 'pending');
   assert.deepEqual(executionPlan[0].completedDeliverables, []);
+});
+
+
+test('tracks execution progress as deliverables are completed', () => {
+  const plan = buildExecutionPlan();
+  assert.equal(executionProgress(plan), 0);
+
+  const foundation = completeDeliverable(plan[0], 'Database initialization');
+  const updatedPlan = [foundation, ...plan.slice(1)];
+
+  assert.equal(foundation.status, 'in_progress');
+  assert.ok(executionProgress(updatedPlan) > 0);
+
+  assert.throws(
+    () => completeDeliverable(plan[0], 'Does not exist'),
+    /Unknown deliverable/
+  );
 });

@@ -66,3 +66,33 @@ export const buildExecutionPlan = () =>
     status: 'pending',
     completedDeliverables: []
   }));
+
+export const completeDeliverable = (phaseState, deliverable) => {
+  if (!phaseState.deliverables.includes(deliverable)) {
+    throw new Error(`Unknown deliverable: ${deliverable}`);
+  }
+
+  if (phaseState.completedDeliverables.includes(deliverable)) {
+    return phaseState;
+  }
+
+  const completedDeliverables = [...phaseState.completedDeliverables, deliverable];
+  const isComplete = completedDeliverables.length === phaseState.deliverables.length;
+
+  return {
+    ...phaseState,
+    completedDeliverables,
+    status: isComplete ? 'completed' : 'in_progress'
+  };
+};
+
+export const executionProgress = (executionPlan) => {
+  const totalDeliverables = executionPlan.reduce((count, phase) => count + phase.deliverables.length, 0);
+  const completedDeliverables = executionPlan.reduce((count, phase) => count + phase.completedDeliverables.length, 0);
+
+  if (totalDeliverables === 0) {
+    return 0;
+  }
+
+  return completedDeliverables / totalDeliverables;
+};

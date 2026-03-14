@@ -11,7 +11,7 @@ This repository now includes a lightweight domain model and delivery plan scaffo
 - Surface and Slate in-memory domain model with ranked universal search.
 - Module and app-state primitives for a multi-module desktop shell.
 - SQLite schema and Python database initialization helper.
-- Delivery roadmap constants that map directly to an 18-week phased plan.
+- Delivery roadmap constants and execution progress helpers for tracking an 18-week phased plan.
 
 ## Delivery phases
 

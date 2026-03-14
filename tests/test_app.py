@@ -2,7 +2,7 @@ from pathlib import Path
 
 from slate.app import Slate
 from slate.cli import format_surface, render_results
-from slate.roadmap import DELIVERY_PHASES, build_execution_plan
+from slate.roadmap import DELIVERY_PHASES, build_execution_plan, execution_progress
 
 
 def test_add_and_persist_surface(tmp_path: Path) -> None:
@@ -73,3 +73,32 @@ def test_build_execution_plan_has_eight_pending_phases() -> None:
     assert len(plan) == 8
     assert all(item.status == "pending" for item in plan)
     assert all(item.completed_deliverables == [] for item in plan)
+
+
+def test_execution_progress_updates_when_deliverables_complete() -> None:
+    plan = build_execution_plan()
+    assert execution_progress(plan) == 0.0
+
+    foundation = plan[0]
+    foundation.complete_deliverable('Database initialization')
+
+    assert foundation.status == 'in_progress'
+    assert execution_progress(plan) > 0.0
+
+    foundation.complete_deliverable('Project setup and folder structure')
+    foundation.complete_deliverable('Core architecture (IPC, state management)')
+    foundation.complete_deliverable('Basic layout with three columns')
+    foundation.complete_deliverable('Universal search shell')
+
+    assert foundation.status == 'completed'
+
+
+def test_complete_deliverable_rejects_unknown_item() -> None:
+    plan = build_execution_plan()
+
+    try:
+        plan[0].complete_deliverable('not-real')
+    except ValueError as exc:
+        assert 'Unknown deliverable' in str(exc)
+    else:
+        raise AssertionError('Expected ValueError for unknown deliverable')

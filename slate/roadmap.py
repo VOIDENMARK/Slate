@@ -17,6 +17,16 @@ class DeliveryPhaseStatus:
     status: str = "pending"
     completed_deliverables: list[str] = field(default_factory=list)
 
+    def complete_deliverable(self, deliverable: str) -> None:
+        if deliverable not in self.phase.deliverables:
+            raise ValueError(f"Unknown deliverable: {deliverable}")
+
+        if deliverable in self.completed_deliverables:
+            return
+
+        self.completed_deliverables.append(deliverable)
+        self.status = "completed" if len(self.completed_deliverables) == len(self.phase.deliverables) else "in_progress"
+
 
 DELIVERY_PHASES: tuple[DeliveryPhase, ...] = (
     DeliveryPhase(
@@ -115,3 +125,13 @@ DELIVERY_PHASES: tuple[DeliveryPhase, ...] = (
 
 def build_execution_plan() -> list[DeliveryPhaseStatus]:
     return [DeliveryPhaseStatus(phase=phase) for phase in DELIVERY_PHASES]
+
+
+def execution_progress(plan: list[DeliveryPhaseStatus]) -> float:
+    total_deliverables = sum(len(item.phase.deliverables) for item in plan)
+    completed_deliverables = sum(len(item.completed_deliverables) for item in plan)
+
+    if total_deliverables == 0:
+        return 0.0
+
+    return completed_deliverables / total_deliverables
