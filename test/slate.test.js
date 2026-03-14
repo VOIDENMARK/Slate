@@ -6,7 +6,8 @@ import {
   DELIVERY_PHASES,
   buildExecutionPlan,
   completeDeliverable,
-  executionProgress
+  executionProgress,
+  BrowserModule
 } from '../src/index.js';
 
 test('adds and retrieves surfaces', () => {
@@ -147,4 +148,36 @@ test('tracks execution progress as deliverables are completed', () => {
     () => completeDeliverable(plan[0], 'Does not exist'),
     /Unknown deliverable/
   );
+});
+
+
+test('browser module manages tabs, bookmarks, history, ad blocking, and downloads', () => {
+  const browser = new BrowserModule();
+
+  const tab1 = browser.openTab({ id: 't1', url: 'https://example.com', title: 'Example' });
+  const tab2 = browser.openTab({ id: 't2', url: 'https://news.example.com', title: 'News' });
+  assert.equal(tab1.isActive, true);
+  assert.equal(tab2.isActive, false);
+
+  browser.activateTab('t2');
+  assert.equal(browser.listTabs().find((tab) => tab.id === 't2')?.isActive, true);
+
+  browser.pinTab('t2');
+  assert.equal(browser.listTabs()[0].id, 't2');
+
+  browser.addBookmark('https://example.com/docs', 'Docs');
+  assert.equal(browser.listBookmarks().length, 1);
+
+  browser.addAdBlockRule('ads.');
+  assert.equal(browser.isBlocked('https://ads.example.com/banner.js'), true);
+
+  const config = browser.webviewConfig('t2');
+  assert.equal(config.src, 'https://news.example.com');
+
+  browser.queueDownload({ id: 'd1', url: 'https://example.com/file.zip' });
+  browser.updateDownload('d1', 'completed', '/tmp/file.zip');
+  assert.equal(browser.downloads[0].status, 'completed');
+
+  assert.equal(browser.closeTab('t2'), true);
+  assert.equal(browser.listHistory().length >= 2, true);
 });

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from slate.app import Slate
+from slate.browser import BrowserModule
 from slate.cli import format_surface, render_results
 from slate.roadmap import DELIVERY_PHASES, build_execution_plan, execution_progress
 from slate.status import incomplete_phases, load_roadmap_status
@@ -111,3 +112,35 @@ def test_load_roadmap_status_and_incomplete_phases() -> None:
     assert status.active_phase == 2
     assert status.completed_phases == (1,)
     assert incomplete_phases(len(DELIVERY_PHASES), status.completed_phases) == (2, 3, 4, 5, 6, 7, 8)
+
+
+def test_browser_module_phase_two_foundations() -> None:
+    browser = BrowserModule()
+
+    first = browser.open_tab('tab-1', 'https://example.com', 'Example')
+    second = browser.open_tab('tab-2', 'https://news.example.com', 'News')
+
+    assert first.is_active is True
+    assert second.is_active is False
+
+    browser.activate_tab('tab-2')
+    assert browser.tabs[1].is_active is True
+
+    browser.pin_tab('tab-2')
+    assert browser.tabs[0].id == 'tab-2'
+
+    browser.add_bookmark('https://example.com/docs', 'Docs')
+    assert len(browser.bookmarks) == 1
+
+    browser.add_adblock_rule('ads.')
+    assert browser.is_blocked('https://ads.example.com/script.js') is True
+
+    browser.queue_download('download-1', 'https://example.com/file.zip')
+    browser.update_download('download-1', 'completed', '/tmp/file.zip')
+    assert browser.downloads[0].status == 'completed'
+
+    config = browser.webview_config('tab-2')
+    assert config['src'] == 'https://news.example.com'
+
+    assert browser.close_tab('tab-2') is True
+    assert len(browser.history()) >= 2
