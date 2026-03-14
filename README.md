@@ -2,35 +2,21 @@
 
 One Surface for Everything.
 
-## Foundation Added
+## Current state
 
-This repository now includes a first-pass technical foundation for SLATE:
+This repository now includes a lightweight domain model for managing surfaces:
 
-- `src/types/modules.ts`: canonical module list and module metadata.
-- `src/core/moduleRegistry.ts`: lightweight in-memory module registry for enable/disable and lookup.
-- `src/state/appState.ts`: initial app state model and state transition helpers.
-- `db/schema.sql`: SQLite starter schema for identity, workspaces, browser tabs, notes, chat conversations, and emails.
-
-## Next Steps
-
-- Wire app state into a UI shell (Electron + React).
-- Add persistence layer to connect `appState` and module configuration to SQLite.
-- Implement IPC boundaries for main/renderer separation
-Slate is a tiny local-first organizer for quick notes, ideas, and tasks.
+- `Surface`: a single unit of content (dashboard, note, board, etc.)
+- `Slate`: an in-memory surface collection with indexing helpers
 
 ## Quick start
 
 ```bash
-python -m pip install -e .
-slate add "Ideas" "Build Slate" --tag todo --tag product
-slate list
-slate search product
+npm test
 ```
 
-Data is stored in `~/.slate/surfaces.json` by default.
+## Next steps
 
-## Development
-
-```bash
-python -m pytest
-```
+- Persistence adapters (JSON/file/db)
+- Search and ranking
+- Sync and collaboration primitives

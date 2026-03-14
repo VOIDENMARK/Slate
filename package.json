@@ -1,0 +1,12 @@
+{
+  "name": "slate",
+  "version": "0.1.0",
+  "description": "Core models for Slate: one surface for everything.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
