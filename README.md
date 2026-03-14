@@ -64,4 +64,5 @@ This repository now includes a lightweight domain model and delivery plan scaffo
 ```bash
 npm test
 pytest
+slate roadmap
 ```

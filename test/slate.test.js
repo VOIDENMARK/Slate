@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { Slate } from '../src/index.js';
-import { DELIVERY_PHASES, buildExecutionPlan } from '../src/roadmap.js';
+import { Slate, DELIVERY_PHASES, buildExecutionPlan } from '../src/index.js';
 
 test('adds and retrieves surfaces', () => {
   const slate = new Slate();
@@ -97,7 +96,13 @@ test('search supports filters and limits', () => {
   assert.equal(financeDashboards[0].id, 'b');
 
   const emptyQuery = slate.search('   ');
-  assert.equal(emptyQuery.length, 0);
+  assert.equal(emptyQuery.length, 3);
+
+  const filteredEmptyQuery = slate.search('', { kind: 'dashboard' });
+  assert.deepEqual(
+    filteredEmptyQuery.map((surface) => surface.id),
+    ['b', 'a']
+  );
 });
 
 test('contains all requested delivery phases in order', () => {

@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .app import Slate
+from .roadmap import DELIVERY_PHASES
 
 
 DEFAULT_PATH = Path.home() / ".slate" / "surfaces.json"
@@ -24,6 +25,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     search_parser = subparsers.add_parser("search", help="Search surfaces")
     search_parser.add_argument("query")
+
+    subparsers.add_parser("roadmap", help="Show the 18-week delivery roadmap")
 
     return parser
 
@@ -61,6 +64,15 @@ def main() -> int:
     if args.command == "search":
         matches = slate.search(args.query)
         return render_results(f"Search results for '{args.query}'", matches)
+
+    if args.command == "roadmap":
+        print("Slate delivery roadmap")
+        print("---------------------")
+        for phase in DELIVERY_PHASES:
+            print(f"{phase.id}. {phase.name} ({phase.weeks})")
+            for deliverable in phase.deliverables:
+                print(f"   - {deliverable}")
+        return 0
 
     return 1
 

@@ -101,12 +101,8 @@ export class Slate {
    * @param {string} query
    * @param {{ tag?: string, kind?: string, limit?: number }} [options]
    */
-  search(query, options = {}) {
+  search(query = '', options = {}) {
     const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return [];
-    }
 
     const { tag, kind, limit } = options;
     const normalizedTag = tag?.toLowerCase();
@@ -124,7 +120,10 @@ export class Slate {
 
         return true;
       })
-      .map((surface) => ({ surface, score: this.scoreSurface(surface, normalizedQuery) }))
+      .map((surface) => ({
+        surface,
+        score: normalizedQuery ? this.scoreSurface(surface, normalizedQuery) : 1
+      }))
       .filter((entry) => entry.score > 0)
       .sort((a, b) => b.score - a.score || a.surface.title.localeCompare(b.surface.title))
       .map((entry) => entry.surface);

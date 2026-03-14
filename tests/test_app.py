@@ -2,6 +2,7 @@ from pathlib import Path
 
 from slate.app import Slate
 from slate.cli import format_surface, render_results
+from slate.roadmap import DELIVERY_PHASES, build_execution_plan
 
 
 def test_add_and_persist_surface(tmp_path: Path) -> None:
@@ -63,3 +64,12 @@ def test_initialize_database_creates_tables(tmp_path: Path) -> None:
         }
 
     assert {"users", "workspaces", "browser_tabs", "notes", "chat_conversations", "emails"}.issubset(table_names)
+
+
+def test_build_execution_plan_has_eight_pending_phases() -> None:
+    assert len(DELIVERY_PHASES) == 8
+
+    plan = build_execution_plan()
+    assert len(plan) == 8
+    assert all(item.status == "pending" for item in plan)
+    assert all(item.completed_deliverables == [] for item in plan)
