@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { Slate } from '../src/index.js';
+import { DELIVERY_PHASES, buildExecutionPlan } from '../src/roadmap.js';
 
 test('adds and retrieves surfaces', () => {
   const slate = new Slate();
@@ -67,6 +68,8 @@ test('builds UI card payloads', () => {
     kind: 'dashboard',
     badges: ['focus', 'team']
   });
+});
+
 test('search ranks exact and partial matches', () => {
   const slate = new Slate();
 
@@ -95,4 +98,25 @@ test('search supports filters and limits', () => {
 
   const emptyQuery = slate.search('   ');
   assert.equal(emptyQuery.length, 0);
+});
+
+test('contains all requested delivery phases in order', () => {
+  assert.equal(DELIVERY_PHASES.length, 8);
+  assert.deepEqual(
+    DELIVERY_PHASES.map((phase) => phase.name),
+    [
+      'Foundation',
+      'Browser Module',
+      'Notes Module',
+      'Communication',
+      'Media',
+      'Code & Work',
+      'Advanced Features',
+      'Polish & Optimization'
+    ]
+  );
+
+  const executionPlan = buildExecutionPlan();
+  assert.equal(executionPlan[0].status, 'pending');
+  assert.deepEqual(executionPlan[0].completedDeliverables, []);
 });

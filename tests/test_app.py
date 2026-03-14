@@ -44,3 +44,22 @@ def test_render_results_handles_empty_state(capsys) -> None:
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "No surfaces found." in captured.out
+
+
+def test_initialize_database_creates_tables(tmp_path: Path) -> None:
+    from slate.db import initialize_database
+
+    db_path = tmp_path / "slate.db"
+    schema_path = Path(__file__).resolve().parents[1] / "db" / "schema.sql"
+
+    initialize_database(db_path, schema_path)
+
+    import sqlite3
+
+    with sqlite3.connect(db_path) as connection:
+        table_names = {
+            row[0]
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        }
+
+    assert {"users", "workspaces", "browser_tabs", "notes", "chat_conversations", "emails"}.issubset(table_names)

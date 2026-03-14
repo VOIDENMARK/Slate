@@ -1,6 +1,4 @@
-"""Slate package."""
-
 from .app import Slate
-from .models import Surface
+from .db import initialize_database
 
-__all__ = ["Slate", "Surface"]
+__all__ = ["Slate", "initialize_database"]
