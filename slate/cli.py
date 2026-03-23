@@ -4,6 +4,9 @@ import argparse
 from pathlib import Path
 
 from .app import Slate
+from .browser import SLATE_MAKER
+from .roadmap import DELIVERY_PHASES
+from .status import incomplete_phases, load_roadmap_status
 
 
 DEFAULT_PATH = Path.home() / ".slate" / "surfaces.json"
@@ -24,6 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     search_parser = subparsers.add_parser("search", help="Search surfaces")
     search_parser.add_argument("query")
+
+    subparsers.add_parser("roadmap", help="Show the 18-week delivery roadmap")
+    subparsers.add_parser("status", help="Show current roadmap completion status")
 
     return parser
 
@@ -61,6 +67,31 @@ def main() -> int:
     if args.command == "search":
         matches = slate.search(args.query)
         return render_results(f"Search results for '{args.query}'", matches)
+
+    if args.command == "roadmap":
+        print(f"Slate delivery roadmap — {SLATE_MAKER}")
+        print("---------------------")
+        for phase in DELIVERY_PHASES:
+            print(f"{phase.id}. {phase.name} ({phase.weeks})")
+            for deliverable in phase.deliverables:
+                print(f"   - {deliverable}")
+        return 0
+
+    if args.command == "status":
+        status = load_roadmap_status()
+        remaining = incomplete_phases(len(DELIVERY_PHASES), status.completed_phases)
+
+        print(f"Roadmap status — {SLATE_MAKER}")
+        print("--------------")
+        print(f"Active phase: {status.active_phase}")
+        print(f"Completed phases: {list(status.completed_phases)}")
+        print(f"Incomplete phases: {list(remaining)}")
+        if status.notes:
+            print(f"Notes: {status.notes}")
+        print(
+            f"Tell me to continue and I will start Phase {status.active_phase}, or tell me you are done for now."
+        )
+        return 0
 
     return 1
 
