@@ -111,9 +111,9 @@ def test_complete_deliverable_rejects_unknown_item() -> None:
 def test_load_roadmap_status_and_incomplete_phases() -> None:
     status = load_roadmap_status()
 
-    assert status.active_phase == 2
-    assert status.completed_phases == (1,)
-    assert incomplete_phases(len(DELIVERY_PHASES), status.completed_phases) == (2, 3, 4, 5, 6, 7, 8)
+    assert status.active_phase == 3
+    assert status.completed_phases == (1, 2)
+    assert incomplete_phases(len(DELIVERY_PHASES), status.completed_phases) == (3, 4, 5, 6, 7, 8)
 
 
 def test_browser_module_phase_two_foundations() -> None:

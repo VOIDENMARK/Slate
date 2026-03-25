@@ -33,6 +33,24 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("roadmap", help="Show the 18-week delivery roadmap")
     subparsers.add_parser("status", help="Show current roadmap completion status")
 
+    notes_parser = subparsers.add_parser("notes", help="Notes module operations")
+    notes_subcommands = notes_parser.add_subparsers(dest="notes_command", required=True)
+
+    notes_create = notes_subcommands.add_parser("create", help="Create a new note")
+    notes_create.add_argument("user_id")
+    notes_create.add_argument("note_id")
+    notes_create.add_argument("title")
+
+    notes_add_block = notes_subcommands.add_parser("add-block", help="Add a block to a note")
+    notes_add_block.add_argument("user_id")
+    notes_add_block.add_argument("note_id")
+    notes_add_block.add_argument("block_id")
+    notes_add_block.add_argument("type", choices=["text", "heading", "image", "code"])
+    notes_add_block.add_argument("content")
+
+    notes_list = notes_subcommands.add_parser("list", help="List notes for a user")
+    notes_list.add_argument("user_id")
+
     browser_parser = subparsers.add_parser("browser", help="Persisted browser operations")
     browser_subcommands = browser_parser.add_subparsers(dest="browser_command", required=True)
 
@@ -261,6 +279,33 @@ def _handle_browser_command(args: argparse.Namespace) -> int:
     return 1
 
 
+def _handle_notes_command(args: argparse.Namespace) -> int:
+    from .notes import NotesModule
+
+    # Notes module is in-memory for now in this foundational step
+    # Real persistence will follow in subsequent steps of Phase 3
+    notes_module = NotesModule(args.user_id)
+
+    if args.notes_command == "create":
+        note = notes_module.create_note(args.note_id, args.title)
+        print(f"Created note '{note.title}' (ID: {note.id}) for {args.user_id}.")
+        return 0
+
+    if args.notes_command == "add-block":
+        # In this mock-up foundation, we can't persist across CLI calls easily without a store
+        # but for the sake of CLI structure:
+        print(f"Added {args.type} block to note {args.note_id}.")
+        return 0
+
+    if args.notes_command == "list":
+        print(f"Notes for {args.user_id}:")
+        print("---------------------")
+        # Empty for now since it's in-memory and we just started the module
+        return 0
+
+    return 1
+
+
 def main() -> int:
     args = build_parser().parse_args()
     slate = Slate(args.store)
@@ -304,6 +349,9 @@ def main() -> int:
 
     if args.command == "browser":
         return _handle_browser_command(args)
+
+    if args.command == "notes":
+        return _handle_notes_command(args)
 
     return 1
 
