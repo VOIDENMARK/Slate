@@ -141,8 +141,8 @@ def test_browser_module_phase_two_foundations() -> None:
     browser.update_download('download-1', 'completed', '/tmp/file.zip')
     assert browser.downloads[0].status == 'completed'
 
-    config = browser.webview_config('tab-2')
-    assert config['src'] == 'https://news.example.com'
+    config = browser.webview_ipc('tab-2')
+    assert config['payload']['url'] == 'https://news.example.com'
 
     assert browser.close_tab('tab-2') is True
     assert len(browser.history()) >= 2

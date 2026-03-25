@@ -97,6 +97,11 @@ def build_parser() -> argparse.ArgumentParser:
     browser_webview.add_argument("tab_id")
     browser_webview.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
 
+    browser_ipc_webview = browser_subcommands.add_parser("ipc-webview", help="Show formal webview IPC message")
+    browser_ipc_webview.add_argument("user_id")
+    browser_ipc_webview.add_argument("tab_id")
+    browser_ipc_webview.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
+
     browser_download_status = browser_subcommands.add_parser("download-status", help="Update download status")
     browser_download_status.add_argument("user_id")
     browser_download_status.add_argument("download_id")
@@ -201,8 +206,15 @@ def _handle_browser_command(args: argparse.Namespace) -> int:
         return 0
 
     if args.browser_command == "webview":
-        config = browser.webview_config(args.tab_id)
+        config = browser.webview_ipc(args.tab_id)
         print(f"WebView config for {args.tab_id}: {config}")
+        return 0
+
+    if args.browser_command == "ipc-webview":
+        import json
+
+        message = browser.webview_ipc(args.tab_id)
+        print(json.dumps(message, indent=2))
         return 0
 
     if args.browser_command == "download-status":
